@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rarity Roller</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .roll-history {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            text-align: left;
+            width: calc(100% - 20px);
+        }
+
+        .roll-history p {
+            margin: 5px 0;
+        }
+
+        .total-rolls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .description {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .locked {
+            display: none;
+        }
+
+        .light-gray {
+            color: lightgray;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .light-green {
+            color: lightgreen;
+        }
+
+        .purple {
+            color: purple;
+        }
+
+        .orange {
+            color: orange;
+        }
+
+        .red {
+            color: blue;
+        }
+
+        .pink {
+            color: #e83e8c;
+        }
+
+        .gold {
+            color: gold;
+        }
+
+        .light-blue {
+            color: lightblue;
+        }
+
+        .white {
+            color: white;
+        }
+
+        .dark-blue {
+            color: darkblue;
+        }
+
+        .light-yellow {
+            color: #ffffe0;
+        }
+
+        .black {
+            color: black;
+        }
+
+        .roll-history p,
+        .total-rolls,
+        .description,
+        #result {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="roll-history" id="rollHistory">
+            <p id="commonCount" class="locked light-gray">Common: Locked</p>
+            <p id="uncommonCount" class="locked green">Uncommon: Locked</p>
+            <p id="rareCount" class="locked light-green">Rare: Locked</p>
+            <p id="epicCount" class="locked purple">Epic: Locked</p>
+            <p id="legendaryCount" class="locked orange">Legendary: Locked</p>
+            <p id="mythicCount" class="locked red">Mythic: Locked</p>
+            <p id="exoticCount" class="locked pink">Exotic: Locked</p>
+            <p id="divineCount" class="locked gold">Divine: Locked</p>
+            <p id="superiorCount" class="locked light-blue">Superior: Locked</p>
+            <p id="celestialCount" class="locked white">Celestial: Locked</p>
+            <p id="eternalCount" class="locked dark-blue">Eternal: Locked</p>
+            <p id="godlyCount" class="locked light-yellow">Godly: Locked</p>
+        </div>
+        <div class="total-rolls" id="totalRolls">
+            Total Rolls: 0
+        </div>
+        <h1>Rarity Roller</h1>
+        <p id="result"></p>
+        <div class="description">
+            There are only 12 rarities in it.<br>Best rarity is 1 in 100.000.<br>And i use english.<br>Good luck!
+        </div>
+    </div>
+    <button onclick="rollRarity()">Roll</button>
+    <script>
+        var rarities = {
+            "Common": { chance: 50, count: 0 },
+            "Uncommon": { chance: 25, count: 0 },
+            "Rare": { chance: 15, count: 0 },
+            "Epic": { chance: 7, count: 0 },
+            "Legendary": { chance: 2, count: 0 },
+            "Mythic": { chance: 0.5, count: 0 },
+            "Exotic": { chance: 0.3, count: 0 },
+            "Divine": { chance: 0.1, count: 0 },
+            "Superior": { chance: 0.09, count: 0 },
+            "Celestial": { chance: 0.01, count: 0 },
+            "Eternal": { chance: 0.002, count: 0 },
+            "Godly": { chance: 0.001, count: 0 }
+        };
+
+        var totalRolls = 0;
+
+        function updateRollHistory() {
+            for (var rarity in rarities) {
+                var countElement = document.getElementById(rarity.toLowerCase() + "Count");
+                var rarityObj = rarities[rarity];
+                if (rarityObj.count > 0) {
+                    countElement.innerText = rarity + ": " + rarityObj.count + " (1 in " + Math.round(100 / rarityObj.chance) + ")";
+                    countElement.classList.remove("locked");
+                    countElement.style.color = getColor(rarity);
+                } else {
+                    countElement.innerText = rarity + ": Locked";
+                    countElement.classList.add("locked");
+                }
+            }
+        }
+
+        function rollRarity() {
+            var roll = Math.random() * 100;
+            var cumulativeProb = 0;
+
+            for (var rarity in rarities) {
+                var rarityObj = rarities[rarity];
+                cumulativeProb += rarityObj.chance;
+                if (roll <= cumulativeProb) {
+                    rarityObj.count++;
+                    totalRolls++;
+                    updateRollHistory();
+                    var foundMessage = "<span style='font-size: 20px; color: black;'>You've found...</span><br/><br/><div style='text-align: center;'><span style='font-size: 18px; color:" + getColor(rarity) + "'>" + rarity + "</span><br/><span style='color: black;'>1 in " + Math.round(100 / rarityObj.chance) + "</span></div>";
+                    document.getElementById("result").innerHTML = foundMessage;
+                    document.getElementById("totalRolls").innerText = "Total Rolls: " + totalRolls;
+                    return;
+                }
+            }
+        }
+
+        function getColor(rarity) {
+            switch (rarity) {
+                case "Common":
+                    return "lightgray";
+                case "Uncommon":
+                    return "green";
+                case "Rare":
+                    return "blue";
+                case "Epic":
+                    return "purple";
+                case "Legendary":
+                    return "orange";
+                case "Mythic":
+                    return "red";
+                case "Exotic":
+                    return "#e83e8c";
+                case "Divine":
+                    return "gold";
+                case "Superior":
+                    return "lightblue";
+                case "Celestial":
+                    return "white";
+                case "Eternal":
+                    return "darkblue";
+                case "Godly":
+                    return "#ffffe0";
+                default:
+                    return "black";
+            }
+        }
+    </script>
+</body>
+</html>
